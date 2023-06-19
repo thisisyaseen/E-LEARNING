@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: inline;
+        }
+
+        input[type="text"] {
+            padding: 5px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to the Student Dashboard</h1>
+
+    <!-- Display subscribed courses -->
+    <h2>Subscribed Courses</h2>
+    <ul>
+        {% for course in courses %}
+        <li>
+            <h3>{{ course.title }}</h3>
+            <p>{{ course.description }}</p>
+            <p>Price: ${{ course.price }}</p>
+            <form method="post" action="{% url 'student-dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="unsubscribe">
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                <button type="submit">Unsubscribe</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Search for courses -->
+    <h2>Search Courses</h2>
+    <form method="post" action="{% url 'student-dashboard' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="search">
+        <input type="text" name="query" placeholder="Search for courses">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Display search results -->
+    {% if search_results %}
+    <h2>Search Results</h2>
+    <ul>
+        {% for course in search_results %}
+        <li>
+            <h3>{{ course.title }}</h3>
+            <p>{{ course.description }}</p>
+            <form method="post" action="{% url 'student-dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="subscribe">
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                <button type="submit">Subscribe</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <!-- Display all courses -->
+    <h2>All Courses</h2>
+    <ul>
+        {% for course in all_courses %}
+        <li>
+            <h3>{{ course.title }}</h3>
+            <p>{{ course.description }}</p>
+            <form method="post" action="{% url 'student-dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="subscribe">
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                <button type="submit">Subscribe</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="redirect-button">
+        <p><a href="/students/login/">Logout</a></p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+
+        .form-group .redirect-button {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Student Login</h1>
+
+    <div class="login-form">
+        <form id="login-form" method="POST" action="{% url 'otp-verification' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="otp_code">OTP Code</label>
+                <input type="text" class="form-control" id="otp_code" name="otp_code" required>
+            </div>
+            <div class="form-group">
+                <button type="button" id="send-otp-button">Send OTP</button>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        <div class="form-group redirect-button">
+            <p>New User? <a href="/students/register/">Register here</a></p>
+        </div>
+
+        <div class="form-group redirect-button">
+            <a href="/teachers/login">Teacher? Click here to login</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#send-otp-button').click(function () {
+                var email = $('input[name="email"]').val();
+                $.ajax({
+                    url: "{% url 'otp-verification' %}",
+                    method: "POST",
+                    data: {
+                        email: email,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        alert('OTP code sent to your email.');
+                    },
+                    error: function (error) {
+                        alert('Failed to send OTP code.');
+                    }
+                });
+            });
+
+            $('#login-form').submit(function (event) {
+                event.preventDefault(); 
+
+                var email = $('input[name="email"]').val();
+                var username = $('input[name="username"]').val();
+                var password = $('input[name="password"]').val();
+                var otpCode = $('input[name="otp_code"]').val();
+
+                // Make an AJAX request to verify the OTP code
+                $.ajax({
+                    url: "{% url 'otp-verification' %}",
+                    method: "POST",
+                    data: {
+                        email: email,
+                        username: username,
+                        password: password,
+                        otp_code: otpCode,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        
+                        window.location.href = "{% url 'student-dashboard' %}";
+                    },
+                    error: function (error) {
+                        alert('Invalid credentials or OTP code.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
